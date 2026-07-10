@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Диагностический зонд портала</title>
+</head>
+<body>
+<!-- ================================================================= -->
+<!-- ==== ВСТАВЛЯТЬ В HTML-БЛОК ПОРТАЛА ВСЁ ОТ ЭТОЙ СТРОКИ ...     ==== -->
+<!-- ================================================================= -->
+<div id="probe-root">
+<style>
+  #probe-root { all: initial; }
+  #probe-root, #probe-root * { box-sizing: border-box; }
+  #probe-root {
+    display: block;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #16181d;
+    background: #f3f4f6;
+  }
+  #probe-root h1 { font-size: 18px; margin: 0 0 4px; font-weight: 700; }
+  #probe-root .sub { font-size: 12px; color: #6b7280; margin: 0 0 12px; }
+  #probe-root .banner {
+    padding: 12px 14px; border-radius: 10px; font-weight: 700;
+    background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; margin-bottom: 12px;
+  }
+  #probe-root .card {
+    background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 10px;
+  }
+  #probe-root .row {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid #f1f2f4;
+  }
+  #probe-root .row:last-child { border-bottom: 0; }
+  #probe-root .k { flex: 1 1 auto; font-size: 13px; color: #374151; }
+  #probe-root .v { flex: 0 0 auto; font-size: 13px; font-weight: 600; text-align: right; max-width: 55%; word-break: break-word; }
+  #probe-root .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; background:#9ca3af; }
+  #probe-root .ok  { background:#16a34a; }
+  #probe-root .bad { background:#dc2626; }
+  #probe-root .warn{ background:#f59e0b; }
+  #probe-root button {
+    font: inherit; padding: 10px 14px; border-radius: 8px; border: 1px solid #9ca3af;
+    background: #fff; color: #111; width: 100%; margin-top: 6px; cursor: pointer;
+  }
+  #probe-root .sticky-test {
+    position: sticky; top: 0; z-index: 5;
+    background: #1e40af; color: #fff; padding: 6px 10px; border-radius: 8px;
+    font-size: 12px; text-align: center; margin-bottom: 10px;
+  }
+  #probe-root .tall {
+    height: 1400px; margin-top: 10px; border-radius: 10px;
+    background: repeating-linear-gradient(180deg,#e0e7ff 0 40px,#c7d2fe 40px 80px);
+    position: relative;
+  }
+  #probe-root .tall .top-mark, #probe-root .tall .bot-mark {
+    position:absolute; left:0; right:0; text-align:center; font-weight:700; font-size:13px; color:#1e3a8a;
+  }
+  #probe-root .tall .top-mark { top: 8px; }
+  #probe-root .tall .bot-mark { bottom: 8px; color:#7c2d12; background:#fed7aa; padding:8px; }
+  #probe-root .extfont { font-family: "Diag Ext Font", cursive; font-size: 20px; }
+  @font-face {
+    font-family: "Diag Ext Font";
+    src: url("https://fonts.gstatic.com/s/pacifico/v22/FwZY7-Qmy14u9lezJ96A4sijpFu_.woff2") format("woff2");
+    font-display: swap;
+  }
+</style>
+
+<div class="sticky-test">Липкая полоска (position: sticky). Прокрути — она должна «прилипнуть» к верху.</div>
+
+<h1>Диагностический зонд</h1>
+<p class="sub">Открой на телефоне через портал → сделай скриншот всего экрана (с прокруткой) → пришли мне. Зелёная точка = работает, красная = заблокировано, жёлтая = частично.</p>
+
+<div id="js-banner" class="banner">JS НЕ ВЫПОЛНИЛСЯ — портал вырезал &lt;script&gt;. Ниже показания не обновятся.</div>
+
+<div class="card">
+  <div class="row"><span class="k"><span id="d-onclick" class="dot"></span>Inline <code>onclick</code></span><span class="v"><button onclick="this.textContent='onclick работает ✓'; this.style.borderColor='#16a34a';">Нажми: проверка inline-обработчика</button></span></div>
+  <div class="row"><span class="k"><span class="dot"></span>Кнопка через addEventListener</span><span class="v"><button id="btn-listener">ожидание JS…</button></span></div>
+</div>
+
+<div class="card" id="readout">
+  <div class="row"><span class="k"><span class="dot"></span>Внутри iframe?</span><span class="v" id="r-iframe">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>Доступ к window.top</span><span class="v" id="r-top">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>Вьюпорт (ш×в)</span><span class="v" id="r-vp">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>Реальная ширина контейнера</span><span class="v" id="r-cw">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>devicePixelRatio / экран</span><span class="v" id="r-dpr">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>localStorage</span><span class="v" id="r-ls">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>sessionStorage</span><span class="v" id="r-ss">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>CSS-переменные</span><span class="v" id="r-cssvar">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>position: sticky</span><span class="v" id="r-sticky">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>Тач-события</span><span class="v" id="r-touch">—</span></div>
+  <div class="row"><span class="k"><span class="dot"></span>Шрифт, навязанный порталом</span><span class="v" id="r-font">—</span></div>
+</div>
+
+<div class="card">
+  <div class="row"><span class="k"><span id="d-cdn-js"  class="dot"></span>Внешний CDN — скрипт (cdnjs)</span><span class="v" id="r-cdn-js">проверяю…</span></div>
+  <div class="row"><span class="k"><span id="d-cdn-css" class="dot"></span>Внешний CDN — шрифт (Google Fonts)</span><span class="v" id="r-cdn-css">проверяю…</span></div>
+  <div class="row"><span class="k"><span id="d-cdn-img" class="dot"></span>Внешний CDN — картинка (jsDelivr)</span><span class="v" id="r-cdn-img">проверяю…</span></div>
+  <div class="row"><span class="k">Пример внешнего шрифта</span><span class="v extfont">Абвг Abcg 123</span></div>
+</div>
+
+<div class="card">
+  <div class="row"><span class="k">User-Agent</span><span class="v" id="r-ua" style="font-weight:400;font-size:11px;">—</span></div>
+</div>
+
+<div class="tall">
+  <div class="top-mark">↑ ВЕРХ высокого блока (высота 1400px)</div>
+  <div class="bot-mark">★ НИЗ ЗОНДА ★ — виден ли этот блок? Пришлось ли прокручивать, или он обрезан?</div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function set(id, txt, status) {
+    var el = $(id); if (!el) return;
+    el.textContent = txt;
+    var dot = el.closest ? el.closest('.row').querySelector('.dot') : null;
+    if (dot && status) { dot.className = 'dot ' + status; }
+  }
+  function dot(id, status) { var d = $(id); if (d) d.className = 'dot ' + status; }
+
+  // JS работает
+  var b = $('js-banner');
+  b.textContent = 'JS ВЫПОЛНЯЕТСЯ ✓ — можно использовать скрипты в шагах.';
+  b.style.background = '#dcfce7'; b.style.color = '#166534'; b.style.borderColor = '#16a34a';
+
+  // Кнопка через listener
+  var bl = $('btn-listener');
+  bl.textContent = 'Нажми: проверка addEventListener';
+  bl.addEventListener('click', function () {
+    bl.textContent = 'addEventListener работает ✓';
+    bl.style.borderColor = '#16a34a';
+  });
+
+  // iframe?
+  var inIframe = false;
+  try { inIframe = (window.self !== window.top); } catch (e) { inIframe = true; }
+  set('r-iframe', inIframe ? 'ДА — контент в iframe' : 'нет — встроен в DOM портала', inIframe ? 'warn' : 'ok');
+
+  // window.top доступ (кросс-домен?)
+  var topAccess;
+  try { var _ = window.top.location.href; topAccess = 'есть (тот же домен)'; dot('', ''); set('r-top', topAccess, 'ok'); }
+  catch (e) { set('r-top', 'нет (кросс-домен/песочница)', 'warn'); }
+
+  // Вьюпорт
+  set('r-vp', window.innerWidth + ' × ' + window.innerHeight + ' px', 'ok');
+
+  // Реальная ширина контейнера
+  var root = $('probe-root');
+  set('r-cw', root.offsetWidth + ' px', 'ok');
+
+  // DPR / экран
+  set('r-dpr', (window.devicePixelRatio || 1) + ' / ' + (screen.width + '×' + screen.height), 'ok');
+
+  // localStorage
+  try { localStorage.setItem('_p', '1'); localStorage.removeItem('_p'); set('r-ls', 'доступен ✓', 'ok'); }
+  catch (e) { set('r-ls', 'ЗАБЛОКИРОВАН', 'bad'); }
+
+  // sessionStorage
+  try { sessionStorage.setItem('_p', '1'); sessionStorage.removeItem('_p'); set('r-ss', 'доступен ✓', 'ok'); }
+  catch (e) { set('r-ss', 'ЗАБЛОКИРОВАН', 'bad'); }
+
+  // CSS-переменные
+  var cssvar = (window.CSS && CSS.supports && CSS.supports('color', 'var(--x)'));
+  set('r-cssvar', cssvar ? 'поддерживаются ✓' : 'нет', cssvar ? 'ok' : 'bad');
+
+  // sticky
+  var stickyOk = (window.CSS && CSS.supports && CSS.supports('position', 'sticky'));
+  set('r-sticky', stickyOk ? 'поддерживается ✓ (проверь глазами при прокрутке)' : 'нет', stickyOk ? 'ok' : 'warn');
+
+  // touch
+  var touch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  set('r-touch', touch ? 'есть ✓' : 'нет (мышь?)', touch ? 'ok' : 'warn');
+
+  // Навязанный шрифт: создаём голый элемент
+  var t = document.createElement('span');
+  t.style.cssText = 'position:absolute;left:-9999px;';
+  t.textContent = 'x';
+  document.body.appendChild(t);
+  var cs = getComputedStyle(t);
+  set('r-font', (cs.fontFamily || '?').slice(0, 40) + ' / ' + cs.fontSize, 'warn');
+  document.body.removeChild(t);
+
+  // UA
+  set('r-ua', navigator.userAgent, 'ok');
+
+  // ---- Внешние ресурсы (с таймаутом 7с) ----
+  function extTest(kind, valId, dotId, onProbe) {
+    var done = false;
+    var timer = setTimeout(function () {
+      if (done) return; done = true;
+      set(valId, 'нет ответа (вероятно заблокирован)', 'bad'); dot(dotId, 'bad');
+    }, 7000);
+    function ok(msg) { if (done) return; done = true; clearTimeout(timer); set(valId, msg, 'ok'); dot(dotId, 'ok'); }
+    function fail(msg) { if (done) return; done = true; clearTimeout(timer); set(valId, msg, 'bad'); dot(dotId, 'bad'); }
+    onProbe(ok, fail);
+  }
+
+  // Скрипт с cdnjs (lodash)
+  extTest('js', 'r-cdn-js', 'd-cdn-js', function (ok, fail) {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js';
+    s.onload = function () { ok('загружается ✓'); };
+    s.onerror = function () { fail('заблокирован'); };
+    document.head.appendChild(s);
+  });
+
+  // Шрифт с Google Fonts (link)
+  extTest('css', 'r-cdn-css', 'd-cdn-css', function (ok, fail) {
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Rubik&display=swap';
+    l.onload = function () { ok('загружается ✓'); };
+    l.onerror = function () { fail('заблокирован'); };
+    document.head.appendChild(l);
+  });
+
+  // Картинка с jsDelivr (эмодзи-PNG из twemoji)
+  extTest('img', 'r-cdn-img', 'd-cdn-img', function (ok, fail) {
+    var im = new Image();
+    im.onload = function () { ok('загружается ✓'); };
+    im.onerror = function () { fail('заблокирован'); };
+    im.src = 'https://cdn.jsdelivr.net/gh/twitter/[email protected]/assets/72x72/2615.png?_=' + Date.now();
+  });
+})();
+</script>
+</div>
+<!-- ================================================================= -->
+<!-- ==== ... ДО ЭТОЙ СТРОКИ (конец блока для HTML-редактора)      ==== -->
+<!-- ================================================================= -->
+</body>
+</html>
