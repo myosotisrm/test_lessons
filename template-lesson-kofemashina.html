@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Взбивание молока — Кофемашина</title>
+
+<!-- Фирменные шрифты (Google Fonts — проверено, грузятся через видео-канал).
+     Для полной автономности можно самохостить woff2 в репозитории. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Zilla+Slab:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================================
+   ШАБЛОН УРОКА · Coffee Machine / Кофемашина
+   Айдентика по брендбуку: red #D60924, ink #241B19, paper #FBF7F1,
+   Zilla Slab (заголовки) + Open Sans (текст).
+   Доставка: GitHub Pages → блок «видео». Всё самодостаточно.
+   ========================================================================= */
+
+:root{
+  /* --- фирменные токены --- */
+  --brand:#D60924;        /* color/brand/red */
+  --brand-dark:#B71228;   /* color/brand/red-print — грани/нажатие */
+  --ink:#241B19;          /* color/ink */
+  --muted:#8A7F76;        /* тёплый серый */
+  --paper:#FBF7F1;        /* color/paper — фон страницы */
+  --card:#FFFFFF;
+  --cream:#F6F0E8;        /* мягкая кремовая заливка */
+  --line:#E5DED6;         /* тёплая линия */
+  /* акценты-напитки (для разнообразия/сезонности) */
+  --mango:#F5AC1C; --avocado:#D3CB2A; --raspberry:#E72C62; --currant:#9A1A6E; --blueberry:#B07DB5;
+  /* статусы */
+  --ok:#2E7D4F; --ok-bg:#EAF3EC;
+  --bad:#D60924; --bad-bg:#FCEBEE;
+  --r:14px;
+  /* шрифты: явно, иначе портал навяжет Times */
+  --display:'Zilla Slab', Georgia, 'Times New Roman', serif;
+  --font:'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;}
+body{
+  font-family:var(--font);
+  font-size:16px; line-height:1.5; color:var(--ink);
+  background:var(--paper);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.lesson{max-width:440px; margin-inline:auto; padding:clamp(12px,4vw,20px);}
+
+/* эйербоу-подпись (Open Sans SemiBold + letter-spacing по брендбуку) */
+.eyebrow{
+  font-weight:600; font-size:12px; letter-spacing:.10em; text-transform:uppercase;
+  color:var(--brand); margin:0 0 6px;
+}
+
+/* прогресс-точки */
+.progress{
+  position:sticky; top:0; z-index:10;
+  display:flex; gap:6px; justify-content:center; padding:10px 0; margin:-4px 0 12px;
+  background:linear-gradient(var(--paper) 70%, transparent);
+}
+.progress .dot{width:8px; height:8px; border-radius:50%; background:#e0d8cc; transition:.25s;}
+.progress .dot.active{background:var(--brand); transform:scale(1.25);}
+.progress .dot.done{background:var(--brand); opacity:.45;}
+
+/* экраны степпера */
+.screen{display:none; animation:fade .3s ease;}
+.screen.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+/* типографика: заголовки — Zilla Slab */
+h1{font-family:var(--display); font-weight:700; font-size:clamp(26px,7.5vw,32px); line-height:1.1; margin:0 0 8px;}
+h2{font-family:var(--display); font-weight:700; font-size:clamp(20px,5.5vw,24px); line-height:1.15; margin:0 0 10px; color:var(--ink);}
+p{margin:0 0 12px;}
+.lead{font-weight:300; font-size:clamp(16px,4.6vw,18px); color:#4a423d;}
+.muted{color:var(--muted); font-size:14px;}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:16px; margin-bottom:14px;}
+
+/* кнопки */
+.btn{
+  appearance:none; border:0; cursor:pointer; font-family:var(--font); font-size:16px; font-weight:700;
+  min-height:48px; padding:12px 18px; border-radius:12px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  transition:transform .06s, filter .2s;
+}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--brand); color:#fff;}
+.btn-primary:active{filter:brightness(1.08);}
+.btn-ghost{background:var(--cream); color:var(--brand);}
+.btn[disabled]{opacity:.4; pointer-events:none;}
+
+.nav{display:flex; gap:10px; margin-top:8px;}
+.nav .btn{width:auto; flex:1;}
+.nav .btn.back{flex:0 0 44%;}
+
+/* обложка */
+.cover{
+  background:linear-gradient(158deg,var(--brand),var(--brand-dark));
+  color:#fff; border-radius:22px; padding:28px 20px 24px; text-align:center; margin-bottom:16px;
+}
+.cover h1{color:#fff;}
+.cover .lead{color:#ffe3e6; font-weight:300;}
+.badge{display:inline-block; background:#ffffff26; border-radius:999px; padding:5px 14px; font-size:12px; font-weight:600; margin-top:16px;}
+
+/* логотип-плашка (ПЛЕЙСХОЛДЕР — замени на реальный логотип «Кофемашины».
+   Знак бренда: кофемолка с колёсиками. Здесь — простой монограм-мок.) */
+.logo{display:inline-flex; align-items:center; gap:10px; margin-bottom:18px;}
+.logo .mark{width:44px; height:44px; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center;}
+.logo .mark svg{width:30px; height:30px;}
+.logo .word{font-family:var(--display); font-weight:700; font-size:15px; letter-spacing:.04em; color:#fff;}
+
+/* иллюстрация */
+.illo{display:block; width:min(180px,55%); margin:4px auto 14px;}
+
+/* буллеты */
+.bullets{list-style:none; padding:0; margin:0;}
+.bullets li{position:relative; padding:9px 0 9px 30px; border-bottom:1px solid var(--line); font-size:15px;}
+.bullets li:last-child{border-bottom:0;}
+.bullets li::before{content:""; position:absolute; left:5px; top:15px; width:9px; height:9px; border-radius:50%; background:var(--brand);}
+
+/* вкладки (CSS radio-hack) */
+.tabs input{position:absolute; opacity:0; pointer-events:none;}
+.tabbar{display:flex; gap:6px; margin-bottom:12px;}
+.tabbar label{flex:1; text-align:center; padding:10px 4px; border-radius:10px; background:var(--cream); color:var(--ink); font-size:13px; font-weight:700; cursor:pointer;}
+.tab-pane{display:none; font-size:15px;}
+#tb1:checked ~ .panes #tp1, #tb2:checked ~ .panes #tp2, #tb3:checked ~ .panes #tp3{display:block;}
+#tb1:checked ~ .tabbar label[for=tb1], #tb2:checked ~ .tabbar label[for=tb2], #tb3:checked ~ .tabbar label[for=tb3]{background:var(--brand); color:#fff;}
+
+/* флип-карточка НА JS (CSS-3D в webview глючит — не используем) */
+.flip{position:relative; min-height:150px; cursor:pointer; user-select:none; margin-bottom:14px;}
+.flip .side{position:absolute; inset:0; border-radius:var(--r); padding:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity .35s, transform .35s;}
+.flip .front{background:var(--brand); color:#fff;}
+.flip .back{background:var(--ok-bg); color:#1c4d33; border:1px solid #cfe4d6; opacity:0; transform:scale(.94);}
+.flip.is-flipped .front{opacity:0; transform:scale(.94);}
+.flip.is-flipped .back{opacity:1; transform:none;}
+.flip .tip{font-size:12px; opacity:.85; margin-top:8px;}
+
+/* аккордеон (native details) */
+details{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:8px;}
+details[open]{border-color:var(--brand);}
+summary{font-weight:700; cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:10px;}
+summary::-webkit-details-marker{display:none;}
+summary::after{content:"＋"; color:var(--brand); font-weight:800;}
+details[open] summary::after{content:"－";}
+details .body{margin-top:10px; font-size:14px; color:#4a423d;}
+
+/* квиз-самопроверка (JS) */
+.opt{display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 14px; margin-bottom:8px; cursor:pointer; font-size:15px; transition:.15s;}
+.opt .mark{flex:0 0 22px; height:22px; border-radius:50%; border:2px solid #cdc3b6;}
+.opt.correct{border-color:var(--ok); background:var(--ok-bg);}
+.opt.correct .mark{border-color:var(--ok); background:var(--ok);}
+.opt.incorrect{border-color:var(--bad); background:var(--bad-bg);}
+.opt.incorrect .mark{border-color:var(--bad); background:var(--bad);}
+.opt.locked{pointer-events:none;}
+.feedback{font-size:14px; font-weight:600; margin:6px 2px 0; display:none;}
+.feedback.show{display:block;}
+.feedback.ok{color:var(--ok);} .feedback.bad{color:var(--bad);}
+
+.done-emoji{font-size:44px; text-align:center; margin:6px 0;}
+</style>
+</head>
+<body>
+<div class="lesson">
+
+  <div class="progress" id="progress"></div>
+
+  <!-- ЭКРАН 1 — Обложка -->
+  <section class="screen active">
+    <div class="cover">
+      <!-- ПЛЕЙСХОЛДЕР логотипа: замени на реальный знак «Кофемашины» -->
+      <span class="logo">
+        <span class="mark">
+          <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="8" y="4" width="14" height="9" rx="2" fill="#D60924"/>
+            <path d="M9 13 h12 l-2 7 h-8 Z" fill="#D60924"/>
+            <circle cx="11" cy="24" r="4" fill="#D60924"/><circle cx="20" cy="24" r="4" fill="#D60924"/>
+          </svg>
+        </span>
+        <span class="word">КОФЕМАШИНА</span>
+      </span>
+      <h1>Взбивание молока</h1>
+      <p class="lead">Глянцевая микропена для капучино и латте-арта</p>
+      <span class="badge">☕ ~4 минуты · 5 экранов</span>
+    </div>
+    <button class="btn btn-primary" data-next>Поехали →</button>
+  </section>
+
+  <!-- ЭКРАН 2 — Теория -->
+  <section class="screen">
+    <p class="eyebrow">Бариста · Молоко</p>
+    <h2>Что такое хорошая пена</h2>
+    <svg class="illo" viewBox="0 0 120 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Питчер с молоком">
+      <path d="M30 25 h50 a6 6 0 0 1 6 6 v55 a20 20 0 0 1 -20 20 h-22 a20 20 0 0 1 -20 -20 v-55 a6 6 0 0 1 6 -6 Z" fill="#fff" stroke="#D60924" stroke-width="3"/>
+      <path d="M30 25 l-14 -12 a5 5 0 0 1 7 -7 l16 14" fill="#fff" stroke="#D60924" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M86 45 h16 a10 10 0 0 1 0 26 h-16" fill="#fff" stroke="#D60924" stroke-width="3"/>
+      <path d="M30 60 h56 v26 a20 20 0 0 1 -20 20 h-16 a20 20 0 0 1 -20 -20 Z" fill="#F6F0E8"/>
+      <ellipse cx="58" cy="60" rx="28" ry="6" fill="#D60924" opacity="0.14"/>
+    </svg>
+    <ul class="bullets">
+      <li>Глянцевая, как мокрая краска — без крупных пузырей</li>
+      <li>Плотная и текучая, «тянется» при наклоне питчера</li>
+      <li>Температура ~60–65 °C: горячо, но руку ещё держишь</li>
+    </ul>
+    <div class="nav">
+      <button class="btn btn-ghost back" data-back>← Назад</button>
+      <button class="btn btn-primary" data-next>Далее →</button>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 3 — Вкладки -->
+  <section class="screen">
+    <p class="eyebrow">Техника</p>
+    <h2>Три этапа</h2>
+    <div class="card">
+      <div class="tabs">
+        <input type="radio" name="stage" id="tb1" checked>
+        <input type="radio" name="stage" id="tb2">
+        <input type="radio" name="stage" id="tb3">
+        <div class="tabbar">
+          <label for="tb1">1 · Воздух</label>
+          <label for="tb2">2 · Прогрев</label>
+          <label for="tb3">3 · Финиш</label>
+        </div>
+        <div class="panes">
+          <div class="tab-pane" id="tp1">Опусти носик панарелло к поверхности — лёгкий «чшш-чшш». Подсасывай воздух, пока объём не вырастет на треть.</div>
+          <div class="tab-pane" id="tp2">Утопи носик глубже и закрути воронку. Пузырьки дробятся, молоко прогревается до 60–65 °C.</div>
+          <div class="tab-pane" id="tp3">Выключи пар, оботри носик. Постучи питчером о стол и покрути — пена станет однородной и глянцевой.</div>
+        </div>
+      </div>
+      <p class="muted" style="margin:0;">Переключай вкладки, чтобы пройти этапы.</p>
+    </div>
+    <div class="nav">
+      <button class="btn btn-ghost back" data-back>← Назад</button>
+      <button class="btn btn-primary" data-next>Далее →</button>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 4 — Флип + аккордеон -->
+  <section class="screen">
+    <p class="eyebrow">Разбор</p>
+    <h2>Проверь себя и разбери ошибки</h2>
+
+    <div class="flip" id="flip">
+      <div class="side front">
+        <div><b>Вопрос</b><br>С чего начинается взбивание?</div>
+        <div class="tip">👆 нажми, чтобы перевернуть</div>
+      </div>
+      <div class="side back">
+        <div><b>Ответ</b><br>С подсоса воздуха у поверхности — пока объём не вырастет.</div>
+        <div class="tip">👆 нажми, чтобы вернуть</div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Крупные пузыри — что не так?</summary>
+      <div class="body">Слишком долго подсасывал воздух или носик был высоко. Раньше утопи носик и закрути воронку.</div>
+    </details>
+    <details>
+      <summary>Молоко «свистит» и кипит</summary>
+      <div class="body">Перегрев. Убирай пар к 60–65 °C — когда питчер станет ощутимо горячим.</div>
+    </details>
+
+    <div class="nav">
+      <button class="btn btn-ghost back" data-back>← Назад</button>
+      <button class="btn btn-primary" data-next>Далее →</button>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 5 — Квиз -->
+  <section class="screen">
+    <p class="eyebrow">Мини-проверка</p>
+    <h2>Один вопрос</h2>
+    <div class="card">
+      <p><b>Признак правильно взбитого молока:</b></p>
+      <div id="quiz">
+        <div class="opt" data-correct="false"><span class="mark"></span> Крупные пузыри и шапка пены</div>
+        <div class="opt" data-correct="true"><span class="mark"></span> Глянцевая гладкая микропена</div>
+        <div class="opt" data-correct="false"><span class="mark"></span> Кипящее молоко со свистом</div>
+      </div>
+      <div class="feedback ok" id="fb-ok">Верно! Глянец и плотность — главные признаки. ✓</div>
+      <div class="feedback bad" id="fb-bad">Не то. Правильный ответ подсвечен зелёным.</div>
+    </div>
+    <p class="muted">Это самопроверка — портал её не оценивает. Для зачёта используйте тест-шаг портала.</p>
+    <div class="nav">
+      <button class="btn btn-ghost back" data-back>← Назад</button>
+      <button class="btn btn-primary" data-next id="afterQuiz" disabled>Далее →</button>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 6 — Итог -->
+  <section class="screen">
+    <div class="done-emoji">✅</div>
+    <h2 style="text-align:center;">Готово!</h2>
+    <p style="text-align:center;">Ты разобрал(а) взбивание молока: воздух → прогрев → финиш, и как ловить ошибки.</p>
+    <div class="card">
+      <b>Мини-чек-лист смены:</b>
+      <ul class="bullets" style="margin-top:8px;">
+        <li>Носик у поверхности → подсос воздуха</li>
+        <li>Воронка → прогрев до 60–65 °C</li>
+        <li>Постучать и покрутить → глянец</li>
+      </ul>
+    </div>
+    <p class="muted" style="text-align:center;">Листай урок дальше кнопкой <b>«Продолжить»</b> внизу портала.</p>
+    <div class="nav">
+      <button class="btn btn-ghost back" data-back>← Назад</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------- Степпер ---------- */
+var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+var progress = document.getElementById('progress');
+var current = 0;
+
+screens.forEach(function(_,i){
+  var d = document.createElement('span');
+  d.className = 'dot' + (i===0?' active':'');
+  progress.appendChild(d);
+});
+var dots = Array.prototype.slice.call(progress.children);
+
+function show(i){
+  if(i<0 || i>=screens.length) return;
+  screens[current].classList.remove('active');
+  screens[i].classList.add('active');
+  dots.forEach(function(d,idx){
+    d.classList.toggle('active', idx===i);
+    d.classList.toggle('done', idx<i);
+  });
+  current = i;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.addEventListener('click', function(e){
+  var next = e.target.closest('[data-next]');
+  var back = e.target.closest('[data-back]');
+  if(next) show(current+1);
+  if(back) show(current-1);
+});
+
+/* ---------- Флип на JS ---------- */
+var flip = document.getElementById('flip');
+flip.addEventListener('click', function(){ flip.classList.toggle('is-flipped'); });
+
+/* ---------- Квиз ---------- */
+var quiz = document.getElementById('quiz');
+var fbOk = document.getElementById('fb-ok');
+var fbBad = document.getElementById('fb-bad');
+var afterQuiz = document.getElementById('afterQuiz');
+
+quiz.addEventListener('click', function(e){
+  var opt = e.target.closest('.opt');
+  if(!opt) return;
+  var chosenCorrect = opt.getAttribute('data-correct') === 'true';
+  Array.prototype.forEach.call(quiz.children, function(o){
+    o.classList.add('locked');
+    if(o.getAttribute('data-correct')==='true') o.classList.add('correct');
+  });
+  if(!chosenCorrect) opt.classList.add('incorrect');
+  (chosenCorrect ? fbOk : fbBad).classList.add('show');
+  afterQuiz.removeAttribute('disabled');
+});
+</script>
+</body>
+</html>
