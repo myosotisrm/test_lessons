@@ -13,7 +13,7 @@
 
 <style>
 /* =========================================================================
-   ШАБЛОН УРОКА v2.5.1 · Coffee Machine / Кофемашина
+   ШАБЛОН УРОКА v2.5.2 · Coffee Machine / Кофемашина
    Айдентика по брендбуку: red #D60924, ink #241B19, paper #FBF7F1,
    Zilla Slab (заголовки) + Open Sans (текст).
    Доставка: GitHub Pages → блок «видео». Всё самодостаточно.
@@ -493,9 +493,12 @@ body.modal-open{overflow:hidden;}
   <section class="screen active" data-title="Стартовая">
     <div class="cover">
       <!-- Идейная картинка курса: кадр во всю ширину, снизу перетекает в красный.
-           ВАЖНО: файл в папке img сам ничего не меняет - картинка появится, только
-           когда заменишь SVG ниже (целиком, от <svg до </svg>) на тег:
-           <img class="art" src="./img/cover.jpg" width="880" height="600" alt="…"> -->
+           КАК ПОДМЕНИТЬ НА ФОТО: удали SVG ниже целиком (от открывающего svg
+           до закрывающего) и на его место поставь тег img с классом art,
+           src="./img/cover.jpg", width/height по пропорциям файла и alt.
+           Тег пиши ВНЕ этого комментария - всё между стрелками-скобками
+           комментария браузер не исполняет, даже если редактор красит это
+           как код. Файл в папке img сам ничего не меняет -->
       <div class="hero-bleed">
         <svg class="art" viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg" aria-label="Латте с розеттой">
           <rect width="440" height="300" fill="#F1E7DA"/>
@@ -794,7 +797,8 @@ body.modal-open{overflow:hidden;}
     <p>30 секунд видео заменят страницу текста - посмотри на воронку и «чшш-чшш» вживую:</p>
 
     <div class="media" data-video="./media/vzbivanie-demo.mp4" role="button" aria-label="Смотреть видео: взбивание молока">
-      <!-- Постер-плейсхолдер: замени на <img class="poster" src="./img/vzbivanie-poster.jpg" width="880" height="495" alt="…"> -->
+      <!-- Постер-плейсхолдер: удали SVG ниже и поставь вне комментария тег img
+           с классом poster, src="./img/vzbivanie-poster.jpg", width/height и alt -->
       <svg class="poster" viewBox="0 0 440 248" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect width="440" height="248" fill="#F6F0E8"/>
         <ellipse cx="220" cy="200" rx="150" ry="26" fill="#D60924" opacity="0.08"/>
@@ -809,7 +813,8 @@ body.modal-open{overflow:hidden;}
     <p style="margin-bottom:6px;"><b>Сравни пену (нажми на фото - увеличится):</b></p>
     <div class="photo2">
       <figure class="photo zoomable">
-        <!-- замени на <img src="./img/pena-ok.jpg" width="440" height="440" alt="Правильная микропена" loading="lazy"> -->
+        <!-- удали SVG ниже и поставь вне комментария тег img:
+             src="./img/pena-ok.jpg", width/height, alt, loading="lazy" -->
         <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-label="Правильная микропена">
           <rect width="220" height="220" fill="#FBF7F1"/>
           <circle cx="110" cy="110" r="78" fill="#F6F0E8" stroke="#2E7D4F" stroke-width="4"/>
@@ -818,7 +823,8 @@ body.modal-open{overflow:hidden;}
         <figcaption class="cap"><span class="cap-ok">✓ Глянец</span> - пузырьков не видно</figcaption>
       </figure>
       <figure class="photo zoomable">
-        <!-- замени на <img src="./img/pena-bad.jpg" width="440" height="440" alt="Крупные пузыри" loading="lazy"> -->
+        <!-- удали SVG ниже и поставь вне комментария тег img:
+             src="./img/pena-bad.jpg", width/height, alt, loading="lazy" -->
         <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-label="Крупные пузыри">
           <rect width="220" height="220" fill="#FBF7F1"/>
           <circle cx="110" cy="110" r="78" fill="#F6F0E8" stroke="#D60924" stroke-width="4"/>
